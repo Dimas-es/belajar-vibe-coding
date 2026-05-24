@@ -1,8 +1,9 @@
 import { Elysia, t } from "elysia";
 import { UserService } from "../services/user-service";
+import { authMiddleware } from "../middleware/auth";
 
 export const userRoutes = new Elysia()
-  // Endpoint untuk registrasi user baru
+  // Endpoint untuk registrasi user baru (Tanpa autentikasi)
   .post(
     "/api/users",
     async ({ body, set }) => {
@@ -32,42 +33,20 @@ export const userRoutes = new Elysia()
     }
   )
   
-  // Endpoint untuk mendapatkan data user saat ini yang sedang login
+  // Terapkan middleware autentikasi untuk rute-rute di bawah ini
+  .use(authMiddleware)
+  
+  // Endpoint untuk mendapatkan data user saat ini yang sedang login (Dengan autentikasi)
   .get(
     "/api/users/current",
-    async ({ headers, set }) => {
-      try {
-        const authHeader = headers["authorization"];
-        
-        // Validasi keberadaan header Authorization dengan format Bearer <token>
-        if (!authHeader || !authHeader.startsWith("Bearer ")) {
-          set.status = 401;
-          return {
-            error: "Unauthorized",
-          };
-        }
-
-        // Ekstrak token dari header (setelah string "Bearer ")
-        const token = authHeader.substring(7);
-        
-        // Ambil data user saat ini berdasarkan token
-        const user = await UserService.getCurrentUser(token);
-        
-        // Kembalikan respons sukses
-        return {
-          data: {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            created_at: user.createdAt,
-          },
-        };
-      } catch (error: any) {
-        // Jika token tidak valid atau ada kegagalan lain, kembalikan 401 Unauthorized
-        set.status = 401;
-        return {
-          error: "Unauthorized",
-        };
-      }
+    async ({ user }) => {
+      return {
+        data: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          created_at: user.createdAt,
+        },
+      };
     }
   );

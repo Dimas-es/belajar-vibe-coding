@@ -15,6 +15,13 @@
       "when": 1779604951827,
       "tag": "0001_public_hellion",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1779608047689,
+      "tag": "0002_smiling_skreet",
+      "breakpoints": true
     }
   ]
 }

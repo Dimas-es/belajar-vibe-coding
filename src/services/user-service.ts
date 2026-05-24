@@ -46,33 +46,23 @@ export class UserService {
    * @throws Error "Unauthorized" jika token tidak valid
    */
   static async getCurrentUser(token: string) {
-    // 1. Cek apakah token ada di tabel sessions
-    const [session] = await db
-      .select({ userId: sessions.userId })
-      .from(sessions)
-      .where(eq(sessions.token, token))
-      .limit(1);
-
-    if (!session) {
-      throw new Error("Unauthorized");
-    }
-
-    // 2. Ambil data user (tanpa mengambil kolom password)
-    const [user] = await db
+    // Optimasi: Gabungkan pencarian token session dan data user dengan 1 kueri INNER JOIN
+    const [result] = await db
       .select({
         id: users.id,
         name: users.name,
         email: users.email,
         createdAt: users.createdAt,
       })
-      .from(users)
-      .where(eq(users.id, session.userId))
+      .from(sessions)
+      .innerJoin(users, eq(sessions.userId, users.id))
+      .where(eq(sessions.token, token))
       .limit(1);
 
-    if (!user) {
+    if (!result) {
       throw new Error("Unauthorized");
     }
 
-    return user;
+    return result;
   }
 }
