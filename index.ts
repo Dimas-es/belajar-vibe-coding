@@ -1,8 +1,34 @@
 import { Elysia } from "elysia";
+import { swagger } from "@elysiajs/swagger";
 import { userRoutes } from "./src/routes/user-route";
 import { authRoutes } from "./src/routes/auth-route";
 
 export const app = new Elysia()
+  // Tambahkan dokumentasi API Swagger
+  .use(
+    swagger({
+      documentation: {
+        info: {
+          title: "Belajar Vibe Coding — Backend API",
+          version: "1.0.0",
+          description: "Dokumentasi API interaktif untuk registrasi, login, logout, dan manajemen session user.",
+        },
+        tags: [
+          { name: "User", description: "Endpoint manajemen profil dan registrasi user" },
+          { name: "Auth", description: "Endpoint autentikasi user (Login dan Logout)" },
+        ],
+        components: {
+          securitySchemes: {
+            bearerAuth: {
+              type: "http",
+              scheme: "bearer",
+              bearerFormat: "UUID",
+            },
+          },
+        },
+      },
+    })
+  )
   // Endpoint dasar (health check)
   .get("/", () => {
     return {

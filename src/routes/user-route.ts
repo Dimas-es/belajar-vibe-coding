@@ -36,6 +36,11 @@ export const userRoutes = new Elysia()
         email: t.String({ minLength: 1, maxLength: 255 }), // Menggunakan t.String biasa agar kompatibel dengan email mock seperti "dimas@localhost"
         password: t.String({ minLength: 6, maxLength: 255 }),
       }),
+      detail: {
+        tags: ["User"],
+        summary: "Registrasi User Baru",
+        description: "Mendaftarkan user baru ke dalam sistem dan menyimpannya ke database.",
+      },
     }
   )
   
@@ -54,5 +59,13 @@ export const userRoutes = new Elysia()
           created_at: user.createdAt,
         },
       };
+    },
+    {
+      detail: {
+        tags: ["User"],
+        summary: "Dapatkan Profil User Saat Ini",
+        description: "Mengambil profil pengguna yang sedang login berdasarkan token Bearer yang dikirim.",
+        security: [{ bearerAuth: [] }],
+      },
     }
   );

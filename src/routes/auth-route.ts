@@ -29,6 +29,11 @@ export const authRoutes = new Elysia()
         email: t.String(),
         password: t.String(),
       }),
+      detail: {
+        tags: ["Auth"],
+        summary: "Login User",
+        description: "Melakukan otentikasi user menggunakan email dan password, lalu mengembalikan session token baru.",
+      },
     }
   )
   
@@ -45,5 +50,13 @@ export const authRoutes = new Elysia()
       return {
         data: result,
       };
+    },
+    {
+      detail: {
+        tags: ["Auth"],
+        summary: "Logout User",
+        description: "Menghapus session token aktif milik user dari database.",
+        security: [{ bearerAuth: [] }],
+      },
     }
   );
