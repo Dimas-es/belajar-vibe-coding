@@ -1,12 +1,12 @@
-import { Elysia, t } from "elysia";
+import { Elysia } from "elysia";
 import { db } from "./src/db";
-import { users } from "./src/db/schema";
+import { userRoutes } from "./src/routes/user-route";
 
 const app = new Elysia()
-  // Decorate context with the Drizzle db instance
+  // Integrasikan koneksi Drizzle ke dalam context Elysia
   .decorate("db", db)
   
-  // Root endpoint to check status
+  // Endpoint dasar (health check)
   .get("/", () => {
     return {
       status: "online",
@@ -14,59 +14,10 @@ const app = new Elysia()
       timestamp: new Date().toISOString(),
     };
   })
-
-  // Grouped routes for /users
-  .group("/users", (group) =>
-    group
-      // Get all users
-      .get("/", async ({ db }) => {
-        try {
-          const allUsers = await db.select().from(users);
-          return {
-            success: true,
-            data: allUsers,
-          };
-        } catch (error: any) {
-          return {
-            success: false,
-            message: "Failed to fetch users. Make sure your database is running and migrated.",
-            error: error.message,
-          };
-        }
-      })
-      // Create a new user
-      .post(
-        "/",
-        async ({ db, body }) => {
-          try {
-            const newUser = await db
-              .insert(users)
-              .values({
-                name: body.name,
-                email: body.email,
-              })
-              .returning();
-            
-            return {
-              success: true,
-              data: newUser[0],
-            };
-          } catch (error: any) {
-            return {
-              success: false,
-              message: "Failed to create user.",
-              error: error.message,
-            };
-          }
-        },
-        {
-          body: t.Object({
-            name: t.String(),
-            email: t.String({ format: "email" }),
-          }),
-        }
-      )
-  )
+  
+  // Daftarkan rute manajemen user (termasuk POST /api/users)
+  .use(userRoutes)
+  
   .listen(3000);
 
 console.log(
