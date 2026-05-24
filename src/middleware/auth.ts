@@ -2,9 +2,8 @@ import { Elysia } from "elysia";
 import { UserService } from "../services/user-service";
 
 export const authMiddleware = new Elysia({ name: "middleware.auth" })
-  // Tangani error secara terpusat untuk rute yang dienkapsulasi
   .onError({ as: "scoped" }, ({ error, set }) => {
-    if (error.message === "Unauthorized") {
+    if (error instanceof Error && error.message === "Unauthorized") {
       set.status = 401;
       return {
         error: "Unauthorized",
