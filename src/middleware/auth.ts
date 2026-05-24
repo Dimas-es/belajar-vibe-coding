@@ -3,7 +3,7 @@ import { UserService } from "../services/user-service";
 
 export const authMiddleware = new Elysia({ name: "middleware.auth" })
   // Tangani error secara terpusat untuk rute yang dienkapsulasi
-  .onError(({ error, set }) => {
+  .onError({ as: "scoped" }, ({ error, set }) => {
     if (error.message === "Unauthorized") {
       set.status = 401;
       return {
@@ -12,7 +12,7 @@ export const authMiddleware = new Elysia({ name: "middleware.auth" })
     }
   })
   // Ekstrak dan validasi token dari header
-  .derive({ as: "global" }, async ({ headers, set }) => {
+  .derive({ as: "scoped" }, async ({ headers, set }) => {
     const authHeader = headers["authorization"];
     
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
