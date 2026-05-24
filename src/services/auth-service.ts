@@ -39,4 +39,28 @@ export class AuthService {
 
     return token;
   }
+
+  /**
+   * Log keluar user dengan menghapus record session dari database.
+   * @param token Token session UUID yang ingin dihapus
+   * @returns "OK" jika berhasil
+   * @throws Error "Unauthorized" jika token tidak ditemukan
+   */
+  static async logout(token: string): Promise<"OK"> {
+    // 1. Validasi token di database
+    const [session] = await db
+      .select({ id: sessions.id })
+      .from(sessions)
+      .where(eq(sessions.token, token))
+      .limit(1);
+
+    if (!session) {
+      throw new Error("Unauthorized");
+    }
+
+    // 2. Hapus session berdasarkan token
+    await db.delete(sessions).where(eq(sessions.token, token));
+
+    return "OK";
+  }
 }
