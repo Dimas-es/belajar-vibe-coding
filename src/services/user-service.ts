@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { db } from "../db";
-import { users } from "../db/schema";
+import { users, sessions } from "../db/schema";
 
 export class UserService {
   /**
@@ -37,5 +37,42 @@ export class UserService {
     });
 
     return "OK";
+  }
+
+  /**
+   * Mendapatkan data user yang saat ini sedang login berdasarkan token session.
+   * @param token Token session UUID
+   * @returns Data user (id, name, email, createdAt)
+   * @throws Error "Unauthorized" jika token tidak valid
+   */
+  static async getCurrentUser(token: string) {
+    // 1. Cek apakah token ada di tabel sessions
+    const [session] = await db
+      .select({ userId: sessions.userId })
+      .from(sessions)
+      .where(eq(sessions.token, token))
+      .limit(1);
+
+    if (!session) {
+      throw new Error("Unauthorized");
+    }
+
+    // 2. Ambil data user (tanpa mengambil kolom password)
+    const [user] = await db
+      .select({
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        createdAt: users.createdAt,
+      })
+      .from(users)
+      .where(eq(users.id, session.userId))
+      .limit(1);
+
+    if (!user) {
+      throw new Error("Unauthorized");
+    }
+
+    return user;
   }
 }
