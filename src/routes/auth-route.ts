@@ -29,6 +29,14 @@ export const authRoutes = new Elysia()
         email: t.String(),
         password: t.String(),
       }),
+      response: {
+        200: t.Object({
+          data: t.String(),
+        }),
+        400: t.Object({
+          error: t.String(),
+        }),
+      },
       detail: {
         tags: ["Auth"],
         summary: "Login User",
@@ -52,6 +60,14 @@ export const authRoutes = new Elysia()
       };
     },
     {
+      response: {
+        200: t.Object({
+          data: t.String(),
+        }),
+        401: t.Object({
+          error: t.String(),
+        }),
+      },
       detail: {
         tags: ["Auth"],
         summary: "Logout User",
