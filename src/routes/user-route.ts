@@ -36,6 +36,19 @@ export const userRoutes = new Elysia()
         email: t.String({ minLength: 1, maxLength: 255 }), // Menggunakan t.String biasa agar kompatibel dengan email mock seperti "dimas@localhost"
         password: t.String({ minLength: 6, maxLength: 255 }),
       }),
+      response: {
+        200: t.Object({
+          data: t.String(),
+        }),
+        400: t.Object({
+          error: t.String(),
+        }),
+      },
+      detail: {
+        tags: ["User"],
+        summary: "Registrasi User Baru",
+        description: "Mendaftarkan user baru ke dalam sistem dan menyimpannya ke database.",
+      },
     }
   )
   
@@ -54,5 +67,26 @@ export const userRoutes = new Elysia()
           created_at: user.createdAt,
         },
       };
+    },
+    {
+      response: {
+        200: t.Object({
+          data: t.Object({
+            id: t.Number(),
+            name: t.String(),
+            email: t.String(),
+            created_at: t.Any(),
+          }),
+        }),
+        401: t.Object({
+          error: t.String(),
+        }),
+      },
+      detail: {
+        tags: ["User"],
+        summary: "Dapatkan Profil User Saat Ini",
+        description: "Mengambil profil pengguna yang sedang login berdasarkan token Bearer yang dikirim.",
+        security: [{ bearerAuth: [] }],
+      },
     }
   );
