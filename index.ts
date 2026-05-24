@@ -2,7 +2,7 @@ import { Elysia } from "elysia";
 import { userRoutes } from "./src/routes/user-route";
 import { authRoutes } from "./src/routes/auth-route";
 
-const app = new Elysia()
+export const app = new Elysia()
   // Endpoint dasar (health check)
   .get("/", () => {
     return {
