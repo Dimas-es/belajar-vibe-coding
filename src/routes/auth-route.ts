@@ -1,8 +1,9 @@
 import { Elysia, t } from "elysia";
 import { AuthService } from "../services/auth-service";
+import { authMiddleware } from "../middleware/auth";
 
 export const authRoutes = new Elysia()
-  // Endpoint untuk login user
+  // Endpoint untuk login user (Tanpa autentikasi)
   .post(
     "/api/login",
     async ({ body, set }) => {
@@ -31,36 +32,18 @@ export const authRoutes = new Elysia()
     }
   )
   
-  // Endpoint untuk logout user
+  // Terapkan middleware autentikasi untuk rute-rute di bawah ini
+  .use(authMiddleware)
+  
+  // Endpoint untuk logout user (Dengan autentikasi)
   .delete(
     "/api/users/logout",
-    async ({ headers, set }) => {
-      try {
-        const authHeader = headers["authorization"];
-        
-        // Validasi keberadaan header Authorization dengan format Bearer <token>
-        if (!authHeader || !authHeader.startsWith("Bearer ")) {
-          set.status = 401;
-          return {
-            error: "Unauthorized",
-          };
-        }
-
-        // Ekstrak token dari header
-        const token = authHeader.substring(7);
-        
-        // Jalankan proses logout
-        const result = await AuthService.logout(token);
-        
-        return {
-          data: result,
-        };
-      } catch (error: any) {
-        // Jika token tidak valid, kembalikan 401 Unauthorized
-        set.status = 401;
-        return {
-          error: "Unauthorized",
-        };
-      }
+    async ({ token }) => {
+      // Jalankan proses logout
+      const result = await AuthService.logout(token);
+      
+      return {
+        data: result,
+      };
     }
   );
