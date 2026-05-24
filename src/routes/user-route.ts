@@ -18,17 +18,23 @@ export const userRoutes = new Elysia()
         // Jika ada kesalahan (seperti email duplikat), kembalikan respons error
         set.status = 400;
         
-        // Response body (error): { "error": "Email sudah terdaftar" }
+        let errorMessage = "Terjadi kesalahan saat memproses permintaan Anda";
+        
+        // Hanya ekspos pesan error yang aman (yang berasal dari logic bisnis kita)
+        if (error instanceof Error && error.message === "Email sudah terdaftar") {
+          errorMessage = error.message;
+        }
+        
         return {
-          error: error.message || "Terjadi kesalahan internal",
+          error: errorMessage,
         };
       }
     },
     {
       body: t.Object({
-        name: t.String(),
-        email: t.String(), // Menggunakan t.String biasa agar kompatibel dengan email mock seperti "dimas@localhost"
-        password: t.String(),
+        name: t.String({ minLength: 1, maxLength: 255 }),
+        email: t.String({ minLength: 1, maxLength: 255 }), // Menggunakan t.String biasa agar kompatibel dengan email mock seperti "dimas@localhost"
+        password: t.String({ minLength: 6, maxLength: 255 }),
       }),
     }
   )
